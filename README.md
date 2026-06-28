@@ -1,38 +1,17 @@
 # Microservice Scaffold Skill
 
-This repository contains a Gemini CLI skill for scaffolding and configuring Node.js microservices with Express, Apollo Server, and Mongoose or PostgreSQL.
+A tool-agnostic skill for scaffolding and updating Node.js microservices. Designed to be readable and usable by any coding agent — Claude Code, Codex, Antigravity, Cursor, Aider, Qwen Coder, Gemini CLI — not just one of them.
 
-## Overview
+## Versions
 
-Building microservices requires consistent patterns for database connections, API layers, and configuration management. This skill encapsulates those patterns into a reusable procedural guide for Gemini CLI.
+- **[v1/](./v1)** — original Gemini CLI skill. Documentation-only guide for Express + Apollo v2 + Mongoose/PostgreSQL. Kept for reference.
+- **[v2/](./v2)** — modern, tool-agnostic, plug-and-play. TypeScript-first. Modular: REST and/or GraphQL, choice of Mongoose 8 / pg / Prisma, optional auth/observability/docker/tests. Includes runnable templates and a scaffold script.
 
-## Contents
-
-- **SKILL.md**: The core skill definition and workflows.
-- **references/**: Detailed setup guides for Mongoose, PostgreSQL, and Apollo Express.
-- **scripts/**: (Optional) Scaffolding scripts.
-- **assets/**: (Optional) Templates and boilerplate.
-
-## How to Install
-
-To use this skill in your own Gemini CLI session:
-
-1. Clone this repository.
-2. Package the skill:
-   ```bash
-   node <path-to-skill-creator>/scripts/package_skill.cjs .
-   ```
-3. Install the generated `.skill` file:
-   ```bash
-   gemini skills install microservice-scaffold.skill --scope user
-   ```
-4. Reload skills in your Gemini CLI session:
-   ```bash
-   /skills reload
-   ```
+Most users want **v2**. Start at [v2/AGENTS.md](./v2/AGENTS.md).
 
 ## Design Principles
 
-- **Modular**: Logic is separated into reusable reference files.
-- **Generic**: Works with any standard Node.js/Express environment.
-- **Secure**: Emphasizes environment-based configuration over hardcoding.
+- **Agent-agnostic.** Canonical instructions live in `AGENTS.md` (community standard). Tool-specific files (`CLAUDE.md`, `GEMINI.md`, `.cursorrules`) are one-line shims that redirect to it.
+- **Modular.** Each capability (REST, GraphQL, Mongoose, pg, Prisma, JWT, logging, Docker, tests) is an independent module. Add or remove without touching others.
+- **Plug-and-play.** A machine-readable `modules.json` plus a `scripts/scaffold.mjs` CLI let any LLM (or human) initialize a project or add a single module with one command.
+- **Convention over framework.** Plain Express + ESM + TypeScript. No bespoke abstractions.

@@ -1,0 +1,175 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "skill": "microservice-scaffold",
+  "version": "2.0.0",
+  "node": ">=20.0.0",
+  "modules": {
+    "core": {
+      "description": "Base TS/ESM project: package.json, tsconfig, env loader, Express bootstrap, /health, basic logger, AppError.",
+      "requires": [],
+      "files": [
+        { "src": "templates/package.json", "dest": "package.json" },
+        { "src": "templates/tsconfig.json", "dest": "tsconfig.json" },
+        { "src": "templates/.env.example", "dest": ".env.example" },
+        { "src": "templates/.gitignore", "dest": ".gitignore" },
+        { "src": "templates/src/index.ts", "dest": "src/index.ts" },
+        { "src": "templates/src/config/env.ts", "dest": "src/config/env.ts" },
+        { "src": "templates/src/server/http.ts", "dest": "src/server/http.ts" },
+        { "src": "templates/src/lib/logger.ts", "dest": "src/lib/logger.ts" },
+        { "src": "templates/src/lib/errors.ts", "dest": "src/lib/errors.ts" },
+        { "src": "templates/src/routes/health.ts", "dest": "src/routes/health.ts" }
+      ],
+      "deps": {
+        "express": "^4.19.2",
+        "dotenv": "^16.4.5",
+        "zod": "^3.23.8"
+      },
+      "devDeps": {
+        "typescript": "^5.5.4",
+        "tsx": "^4.19.0",
+        "@types/node": "^20.14.10",
+        "@types/express": "^4.17.21"
+      },
+      "postInstall": ["npm install", "cp .env.example .env"]
+    },
+    "rest": {
+      "description": "REST router pattern: controllers, zod validation middleware, example resource at /api/example.",
+      "requires": ["core"],
+      "files": [
+        { "src": "templates/src/server/rest.ts", "dest": "src/server/rest.ts" },
+        { "src": "templates/src/routes/example.rest.ts", "dest": "src/routes/example.rest.ts" },
+        { "src": "templates/src/middleware/validate.ts", "dest": "src/middleware/validate.ts" }
+      ],
+      "deps": {},
+      "devDeps": {},
+      "wireUp": "Add `import { registerRest } from './server/rest.js'` and call `registerRest(app)` in src/index.ts. See references/api/rest.md.",
+      "postInstall": []
+    },
+    "graphql": {
+      "description": "Apollo Server v4 mounted on Express via expressMiddleware. Sample schema + resolver.",
+      "requires": ["core"],
+      "files": [
+        { "src": "templates/src/server/apollo.ts", "dest": "src/server/apollo.ts" },
+        { "src": "templates/src/graphql/schema.ts", "dest": "src/graphql/schema.ts" },
+        { "src": "templates/src/graphql/resolvers.ts", "dest": "src/graphql/resolvers.ts" }
+      ],
+      "deps": {
+        "@apollo/server": "^4.11.0",
+        "graphql": "^16.9.0",
+        "graphql-tag": "^2.12.6",
+        "cors": "^2.8.5",
+        "body-parser": "^1.20.2"
+      },
+      "devDeps": {
+        "@types/cors": "^2.8.17",
+        "@types/body-parser": "^1.19.5"
+      },
+      "wireUp": "Add `await registerApollo(app, httpServer)` in src/index.ts after creating the http server. See references/api/graphql.md.",
+      "postInstall": []
+    },
+    "db-mongoose": {
+      "description": "Mongoose 8 connection with graceful shutdown and event-based reconnect logging; sample model.",
+      "requires": ["core"],
+      "conflicts": ["db-pg", "db-prisma"],
+      "files": [
+        { "src": "templates/src/db/mongoose.ts", "dest": "src/db/mongoose.ts" },
+        { "src": "templates/src/models/example.mongoose.ts", "dest": "src/models/example.ts" }
+      ],
+      "deps": { "mongoose": "^8.5.1" },
+      "devDeps": {},
+      "envVars": ["MONGO_URI"],
+      "wireUp": "Add `await connectMongo()` early in src/index.ts. See references/db/mongoose.md.",
+      "postInstall": []
+    },
+    "db-pg": {
+      "description": "pg.Pool with parametrized query helper, transaction helper, graceful shutdown.",
+      "requires": ["core"],
+      "conflicts": ["db-mongoose", "db-prisma"],
+      "files": [
+        { "src": "templates/src/db/pg.ts", "dest": "src/db/pg.ts" }
+      ],
+      "deps": { "pg": "^8.12.0" },
+      "devDeps": { "@types/pg": "^8.11.6" },
+      "envVars": ["PG_HOST", "PG_PORT", "PG_USER", "PG_PASSWORD", "PG_DATABASE"],
+      "wireUp": "Add `await pingPg()` early in src/index.ts to fail-fast on bad config. See references/db/pg.md.",
+      "postInstall": []
+    },
+    "db-prisma": {
+      "description": "Prisma Client + sample schema + migrate scripts. Defaults to PostgreSQL but switchable.",
+      "requires": ["core"],
+      "conflicts": ["db-mongoose", "db-pg"],
+      "files": [
+        { "src": "templates/src/db/prisma.ts", "dest": "src/db/prisma.ts" },
+        { "src": "templates/prisma/schema.prisma", "dest": "prisma/schema.prisma" }
+      ],
+      "deps": { "@prisma/client": "^5.18.0" },
+      "devDeps": { "prisma": "^5.18.0" },
+      "envVars": ["DATABASE_URL"],
+      "wireUp": "Import `prisma` from './db/prisma.js' where needed; nothing to wire into index.ts. See references/db/prisma.md.",
+      "postInstall": ["npx prisma generate", "npx prisma migrate dev --name init"]
+    },
+    "auth-jwt": {
+      "description": "JWT sign/verify helpers, Express middleware for required + optional auth, role guard.",
+      "requires": ["core"],
+      "files": [
+        { "src": "templates/src/lib/jwt.ts", "dest": "src/lib/jwt.ts" },
+        { "src": "templates/src/middleware/auth.ts", "dest": "src/middleware/auth.ts" }
+      ],
+      "deps": { "jsonwebtoken": "^9.0.2" },
+      "devDeps": { "@types/jsonwebtoken": "^9.0.6" },
+      "envVars": ["JWT_SECRET", "JWT_EXPIRES_IN"],
+      "wireUp": "Apply `requireAuth` to protected routers. See references/auth/jwt.md.",
+      "postInstall": []
+    },
+    "observability": {
+      "description": "Pino structured logger (overrides core logger), request-ID middleware, central error handler, /ready.",
+      "requires": ["core"],
+      "files": [
+        { "src": "templates/src/lib/logger.pino.ts", "dest": "src/lib/logger.ts", "overwrite": true },
+        { "src": "templates/src/middleware/requestId.ts", "dest": "src/middleware/requestId.ts" },
+        { "src": "templates/src/middleware/error.ts", "dest": "src/middleware/error.ts" },
+        { "src": "templates/src/routes/ready.ts", "dest": "src/routes/ready.ts" }
+      ],
+      "deps": {
+        "pino": "^9.3.2",
+        "pino-http": "^10.2.0"
+      },
+      "devDeps": {
+        "pino-pretty": "^11.2.2"
+      },
+      "wireUp": "Mount `requestId` and `pinoHttp(logger)` before routes; mount `errorHandler` last; mount `/ready`. See references/observability/logging.md.",
+      "postInstall": []
+    },
+    "docker": {
+      "description": "Multi-stage Dockerfile (build+runtime) and docker-compose with selected DB. Uncomment the relevant DB service.",
+      "requires": ["core"],
+      "files": [
+        { "src": "templates/docker/Dockerfile", "dest": "Dockerfile" },
+        { "src": "templates/docker/.dockerignore", "dest": ".dockerignore" },
+        { "src": "templates/docker/docker-compose.yml", "dest": "docker-compose.yml" }
+      ],
+      "deps": {},
+      "devDeps": {},
+      "postInstall": ["docker compose up --build"]
+    },
+    "tests": {
+      "description": "Vitest + supertest scaffold with sample test for the /health endpoint.",
+      "requires": ["core"],
+      "files": [
+        { "src": "templates/vitest.config.ts", "dest": "vitest.config.ts" },
+        { "src": "templates/tests/health.test.ts", "dest": "tests/health.test.ts" }
+      ],
+      "deps": {},
+      "devDeps": {
+        "vitest": "^2.0.5",
+        "supertest": "^7.0.0",
+        "@types/supertest": "^6.0.2"
+      },
+      "scripts": {
+        "test": "vitest run",
+        "test:watch": "vitest"
+      },
+      "postInstall": ["npm test"]
+    }
+  }
+}
