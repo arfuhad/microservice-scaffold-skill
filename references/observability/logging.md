@@ -5,7 +5,7 @@ Replaces the core's basic logger with [pino](https://getpino.io), adds request-I
 ## Install
 
 ```bash
-node v2/scripts/scaffold.mjs add observability <target-dir>
+node scripts/scaffold.mjs add observability <target-dir>
 ```
 
 This **overwrites** two files from core:

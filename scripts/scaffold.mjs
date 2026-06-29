@@ -1,6 +1,6 @@
 #!/usr/bin/env node
-// microservice-scaffold v2 — scaffolding CLI.
-// Zero dependencies. Run with: node v2/scripts/scaffold.mjs <command> [args]
+// microservice-scaffold — scaffolding CLI.
+// Zero dependencies. Run with: node scripts/scaffold.mjs <command> [args]
 //
 // Commands:
 //   init <target> [--api=rest,graphql] [--db=mongoose|pg|prisma] [--modules=a,b,c] [--force]
@@ -427,12 +427,12 @@ async function cmdList(positional) {
     log(`  ${mark}${c.cyan}${name.padEnd(16)}${c.reset}${mod.description}${reqs}${cons}`);
   }
   if (installed) log(`\n${c.dim}● = installed in ${resolve(positional[0])}${c.reset}`);
-  log(`\n${c.dim}Init: node v2/scripts/scaffold.mjs init <dir> --api=rest --db=pg --modules=auth-jwt,observability,docker,tests${c.reset}`);
-  log(`${c.dim}Add:  node v2/scripts/scaffold.mjs add <module> <dir>${c.reset}`);
+  log(`\n${c.dim}Init: node scripts/scaffold.mjs init <dir> --api=rest --db=pg --modules=auth-jwt,observability,docker,tests${c.reset}`);
+  log(`${c.dim}Add:  node scripts/scaffold.mjs add <module> <dir>${c.reset}`);
 }
 
 async function cmdHelp() {
-  log(`${c.bold}microservice-scaffold v2${c.reset}
+  log(`${c.bold}microservice-scaffold${c.reset}
 
 ${c.cyan}init${c.reset} <target> [flags]   Initialize a new project
   --api=rest,graphql       API layers to include
@@ -445,10 +445,10 @@ ${c.cyan}list${c.reset} [<target>]         Show available modules (marks install
 ${c.cyan}help${c.reset}                    Show this message
 
 ${c.dim}Examples:${c.reset}
-  node v2/scripts/scaffold.mjs init my-svc --api=rest --db=pg --modules=observability,docker,tests
-  node v2/scripts/scaffold.mjs add graphql ./my-svc
-  node v2/scripts/scaffold.mjs add auth-jwt ./my-svc
-  node v2/scripts/scaffold.mjs list ./my-svc
+  node scripts/scaffold.mjs init my-svc --api=rest --db=pg --modules=observability,docker,tests
+  node scripts/scaffold.mjs add graphql ./my-svc
+  node scripts/scaffold.mjs add auth-jwt ./my-svc
+  node scripts/scaffold.mjs list ./my-svc
 `);
 }
 

@@ -5,7 +5,7 @@ Vitest + supertest scaffold with a sample test that hits `/health` against the i
 ## Install
 
 ```bash
-node v2/scripts/scaffold.mjs add tests <target-dir>
+node scripts/scaffold.mjs add tests <target-dir>
 ```
 
 ## Files added

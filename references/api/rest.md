@@ -5,7 +5,7 @@ REST API on Express. Ships a router pattern with zod-validated request bodies/pa
 ## Install
 
 ```bash
-node v2/scripts/scaffold.mjs add rest <target-dir>
+node scripts/scaffold.mjs add rest <target-dir>
 ```
 
 ## Files added

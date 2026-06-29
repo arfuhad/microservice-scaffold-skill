@@ -1,4 +1,4 @@
-# microservice-scaffold v2 — Agent Instructions
+# microservice-scaffold — Agent Instructions
 
 This file is the **canonical entry point** for any coding agent (Claude Code, Codex, Antigravity, Cursor, Aider, Qwen Coder, Gemini CLI, etc.) that needs to scaffold or update a Node.js microservice using this skill.
 
@@ -25,16 +25,16 @@ Everything is a **module**. Pick what you need; skip the rest. Modules don't dep
 
 ```bash
 # Initialize a new project with chosen modules
-node v2/scripts/scaffold.mjs init <target-dir> \
+node scripts/scaffold.mjs init <target-dir> \
   --api=rest,graphql \
   --db=pg \
   --modules=auth,observability,docker,tests
 
 # Add a single module to an existing project
-node v2/scripts/scaffold.mjs add <module> <target-dir>
+node scripts/scaffold.mjs add <module> <target-dir>
 
 # List available modules
-node v2/scripts/scaffold.mjs list
+node scripts/scaffold.mjs list
 ```
 
 The script reads [`modules.json`](./modules.json), copies template files, merges `package.json` dependencies, and prints the exact next steps.
@@ -42,10 +42,10 @@ The script reads [`modules.json`](./modules.json), copies template files, merges
 ### B. Read templates and copy them yourself (when no shell, or for fine-grained edits)
 
 1. Read [`modules.json`](./modules.json) to see the file list and npm deps for each module.
-2. Copy the template files from `v2/templates/` into the target project at the `dest` paths declared in the manifest.
+2. Copy the template files from `templates/` into the target project at the `dest` paths declared in the manifest.
 3. Merge each module's `deps` and `devDeps` into the project's `package.json`.
 4. Wire the modules into `src/index.ts` following [`references/wire-up.md`](./references/wire-up.md) — that single doc covers every module's wire-up in order.
-5. Run the post-install steps listed in the module's reference doc under `v2/references/`.
+5. Run the post-install steps listed in the module's reference doc under `references/`.
 
 Either path produces the same result. The script is just a convenience — the manifest, templates, and `wire-up.md` are the source of truth.
 
@@ -77,7 +77,7 @@ This is the **plug-and-play contract**. Every module follows the same shape so i
 ### With the scaffold script (preferred)
 
 ```bash
-node v2/scripts/scaffold.mjs add <module> <target>
+node scripts/scaffold.mjs add <module> <target>
 ```
 
 The script copies files, merges `package.json`, regenerates `src/index.ts` based on `.scaffold-state.json`, and prints post-install commands. Wire-up is automatic; do not hand-edit `src/index.ts` after running it.
@@ -126,7 +126,7 @@ These apply to every template and every change an agent makes inside a project s
 ## File layout of this skill
 
 ```
-v2/
+microservice-scaffold/
 ├── AGENTS.md              ← you are here
 ├── CLAUDE.md              ← shim → AGENTS.md
 ├── GEMINI.md              ← shim → AGENTS.md

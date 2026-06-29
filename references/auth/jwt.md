@@ -5,7 +5,7 @@ JWT sign/verify helpers plus Express middleware: `requireAuth`, `optionalAuth`, 
 ## Install
 
 ```bash
-node v2/scripts/scaffold.mjs add auth-jwt <target-dir>
+node scripts/scaffold.mjs add auth-jwt <target-dir>
 ```
 
 ## Files added

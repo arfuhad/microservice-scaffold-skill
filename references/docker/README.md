@@ -5,7 +5,7 @@ Multi-stage `Dockerfile` for production and a `docker-compose.yml` for local dev
 ## Install
 
 ```bash
-node v2/scripts/scaffold.mjs add docker <target-dir>
+node scripts/scaffold.mjs add docker <target-dir>
 ```
 
 ## Files added

@@ -5,7 +5,7 @@ PostgreSQL using the `pg` package with connection pooling, a parametrized `query
 ## Install
 
 ```bash
-node v2/scripts/scaffold.mjs add db-pg <target-dir>
+node scripts/scaffold.mjs add db-pg <target-dir>
 ```
 
 Conflicts with `db-mongoose` and `db-prisma` — pick one.

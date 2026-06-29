@@ -2,12 +2,12 @@
 
 Mongoose **8** connection with event-based logging and graceful shutdown.
 
-> v1 of this skill used `useNewUrlParser` / `useUnifiedTopology`. Both are no-ops in Mongoose 6+ and removed entirely from the v2 template.
+> Don't pass `useNewUrlParser` / `useUnifiedTopology` — both are no-ops in Mongoose 6+ and emit deprecation warnings.
 
 ## Install
 
 ```bash
-node v2/scripts/scaffold.mjs add db-mongoose <target-dir>
+node scripts/scaffold.mjs add db-mongoose <target-dir>
 ```
 
 Conflicts with `db-pg` and `db-prisma` — pick one.

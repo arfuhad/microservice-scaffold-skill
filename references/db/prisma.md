@@ -5,7 +5,7 @@ Prisma Client + schema + migration commands. Defaults to PostgreSQL but the prov
 ## Install
 
 ```bash
-node v2/scripts/scaffold.mjs add db-prisma <target-dir>
+node scripts/scaffold.mjs add db-prisma <target-dir>
 ```
 
 Conflicts with `db-mongoose` and `db-pg` — pick one.

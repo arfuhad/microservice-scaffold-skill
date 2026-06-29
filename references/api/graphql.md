@@ -2,12 +2,12 @@
 
 GraphQL API via Apollo Server **v4** mounted on Express with `expressMiddleware`.
 
-> v1 of this skill used `apollo-server-express` (Apollo v2/v3), which is deprecated. v2 uses `@apollo/server` v4 — the supported path.
+> Uses `@apollo/server` v4 (the current supported path), not the deprecated `apollo-server-express` (Apollo v2/v3).
 
 ## Install
 
 ```bash
-node v2/scripts/scaffold.mjs add graphql <target-dir>
+node scripts/scaffold.mjs add graphql <target-dir>
 ```
 
 ## Files added

@@ -13,7 +13,7 @@ The `core` module is the foundation of every project built with this skill. It s
 ## Install
 
 ```bash
-node v2/scripts/scaffold.mjs init <target-dir>
+node scripts/scaffold.mjs init <target-dir>
 ```
 
 This installs `core` only. Add other modules with `add`.
