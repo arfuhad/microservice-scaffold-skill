@@ -28,15 +28,7 @@ For authenticated URIs, encode credentials in the URI itself:
 
 ## Wire it up
 
-In `src/index.ts`:
-
-```ts
-import { connectMongo } from './db/mongoose.js';
-// ...
-await connectMongo();
-```
-
-Place it **before** anything that reads from Mongo.
+Auto-wired by `scaffold.mjs` — `await connectMongo()` is placed before the app is created. Shutdown registers via the central coordinator (`onShutdown('mongo', …)`). For the manual recipe, see [`../wire-up.md`](../wire-up.md).
 
 ## Defining a model
 

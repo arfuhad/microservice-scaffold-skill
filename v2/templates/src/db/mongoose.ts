@@ -1,6 +1,7 @@
 import mongoose from 'mongoose';
 import { env } from '../config/env.js';
 import { logger } from '../lib/logger.js';
+import { onShutdown } from '../lib/shutdown.js';
 
 export async function connectMongo(): Promise<typeof mongoose> {
   if (!env.MONGO_URI) {
@@ -15,12 +16,10 @@ export async function connectMongo(): Promise<typeof mongoose> {
     serverSelectionTimeoutMS: 5_000,
   });
 
-  const close = async () => {
+  onShutdown('mongo', async () => {
     await mongoose.connection.close();
     logger.info('mongo closed');
-  };
-  process.on('SIGINT', close);
-  process.on('SIGTERM', close);
+  });
 
   return mongoose;
 }

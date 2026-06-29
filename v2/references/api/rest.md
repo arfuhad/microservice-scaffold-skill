@@ -16,15 +16,7 @@ node v2/scripts/scaffold.mjs add rest <target-dir>
 
 ## Wire it up
 
-In `src/index.ts`, after `const app = createApp();`, add:
-
-```ts
-import { registerRest } from './server/rest.js';
-// ...
-registerRest(app);
-```
-
-(Replace the `// rest: registerRest(app);` placeholder comment.)
+Auto-wired by `scaffold.mjs`. For the manual recipe, see [`../wire-up.md`](../wire-up.md).
 
 ## Pattern
 
@@ -40,7 +32,7 @@ router.post('/', validate(createSchema), (req, res) => {
 });
 ```
 
-Throw from `src/lib/errors.ts` (`badRequest`, `notFound`, ...) for expected failures — the central error handler (from the `observability` module) formats them. Without `observability`, Express's default handler renders a 500.
+Throw from `src/lib/errors.ts` (`badRequest`, `notFound`, ...) for expected failures — the central error handler formats them. Core ships a basic handler (`middleware/error.basic.ts`); installing the `observability` module upgrades it to a reqId-aware version at `middleware/error.ts`.
 
 ## Add a new resource
 

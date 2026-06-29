@@ -44,9 +44,10 @@ The script reads [`modules.json`](./modules.json), copies template files, merges
 1. Read [`modules.json`](./modules.json) to see the file list and npm deps for each module.
 2. Copy the template files from `v2/templates/` into the target project at the `dest` paths declared in the manifest.
 3. Merge each module's `deps` and `devDeps` into the project's `package.json`.
-4. Run the post-install steps listed in the module's reference doc under `v2/references/`.
+4. Wire the modules into `src/index.ts` following [`references/wire-up.md`](./references/wire-up.md) — that single doc covers every module's wire-up in order.
+5. Run the post-install steps listed in the module's reference doc under `v2/references/`.
 
-Either path produces the same result. The script is just a convenience — the manifest and templates are the source of truth.
+Either path produces the same result. The script is just a convenience — the manifest, templates, and `wire-up.md` are the source of truth.
 
 ---
 
@@ -71,15 +72,27 @@ Pick **at most one** of `db-mongoose` / `db-pg` / `db-prisma` per project unless
 
 ## Adding a module to an existing project (any agent, any tool)
 
-This is the **plug-and-play contract**. Every module follows the same shape so it works the same way for every LLM:
+This is the **plug-and-play contract**. Every module follows the same shape so it works the same way for every LLM.
+
+### With the scaffold script (preferred)
+
+```bash
+node v2/scripts/scaffold.mjs add <module> <target>
+```
+
+The script copies files, merges `package.json`, regenerates `src/index.ts` based on `.scaffold-state.json`, and prints post-install commands. Wire-up is automatic; do not hand-edit `src/index.ts` after running it.
+
+### Without the script (no shell, or for fine-grained control)
 
 1. **Read** `modules.json` and look up the module by name.
-2. **Copy** each file from `files[].src` to `files[].dest` in the target project, creating directories as needed. Never overwrite an existing file without diffing first.
-3. **Merge** `deps` and `devDeps` into the target's `package.json`. Prefer the higher version on conflict.
-4. **Wire it up.** Each module's reference doc has a "Wire it up" section showing the exact 2–5 lines to add to `src/index.ts` (or other root files) to activate the module. The reference doc is authoritative for any glue code.
-5. **Print** the post-install commands (e.g., `npm install`, `npx prisma generate`) from the reference doc's "After install" section.
+2. **Read** `.scaffold-state.json` in the target (if present) to see what's already installed.
+3. **Copy** each file from `files[].src` to `files[].dest` in the target project, creating directories as needed. Files marked `overwrite: true` (e.g., observability's logger upgrade) should replace existing files; others should never overwrite without diffing.
+4. **Merge** `deps` and `devDeps` into the target's `package.json`. Prefer the higher version on conflict.
+5. **Wire it up.** Open [`references/wire-up.md`](./references/wire-up.md) and rebuild `src/index.ts` for the full set of installed modules (existing + new). This single doc lists the imports and statements per module, in the correct order.
+6. **Update** `.scaffold-state.json` to include the new module (alphabetized).
+7. **Print** the post-install commands (e.g., `npm install`, `npx prisma generate`) listed in `modules.json` under the module's `postInstall` array.
 
-If you're an LLM doing this without the scaffold script, follow steps 1–5 in order and stop after step 5 to let the user run the install commands themselves.
+Stop after step 7 to let the user run the install commands themselves.
 
 ---
 

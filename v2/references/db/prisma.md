@@ -30,13 +30,15 @@ npx prisma migrate dev --name init  # apply the initial migration
 
 ## Wire it up
 
-No glue in `src/index.ts`. Import the singleton wherever needed:
+No glue in `src/index.ts` — Prisma manages its own connection. The scaffold wires `onShutdown('prisma', …)` automatically so `$disconnect()` runs cleanly. Import the singleton wherever needed:
 
 ```ts
 import { prisma } from '../db/prisma.js';
 
 const items = await prisma.example.findMany();
 ```
+
+For the full module wire-up reference, see [`../wire-up.md`](../wire-up.md).
 
 ## Adding a model
 

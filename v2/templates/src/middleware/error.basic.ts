@@ -2,19 +2,17 @@ import type { Request, Response, NextFunction } from 'express';
 import { AppError } from '../lib/errors.js';
 import { logger } from '../lib/logger.js';
 
-export function errorHandler(err: unknown, req: Request, res: Response, _next: NextFunction) {
-  const reqId = (req as Request & { id?: string }).id;
-
+export function errorHandler(err: unknown, _req: Request, res: Response, _next: NextFunction) {
   if (err instanceof AppError) {
-    if (err.status >= 500) logger.error({ err, reqId }, err.message);
-    else logger.warn({ err: { code: err.code, status: err.status }, reqId }, err.message);
+    if (err.status >= 500) logger.error({ err }, err.message);
+    else logger.warn({ code: err.code, status: err.status }, err.message);
     res.status(err.status).json({
       error: { code: err.code, message: err.message, details: err.details },
     });
     return;
   }
 
-  logger.error({ err, reqId }, 'unhandled error');
+  logger.error({ err }, 'unhandled error');
   res.status(500).json({ error: { code: 'internal_error', message: 'internal server error' } });
 }
 

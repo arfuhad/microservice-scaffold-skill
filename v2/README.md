@@ -31,15 +31,17 @@ npm run dev
 ```
 
 ```bash
-# Add a module to an existing project later
+# Add a module to an existing project later — auto-wires it into src/index.ts
 node v2/scripts/scaffold.mjs add graphql ./my-service
 node v2/scripts/scaffold.mjs add auth-jwt ./my-service
 ```
 
 ```bash
-# See what's available
-node v2/scripts/scaffold.mjs list
+# See what's available (pass a target to mark installed modules)
+node v2/scripts/scaffold.mjs list ./my-service
 ```
+
+The scaffold tracks installed modules in `.scaffold-state.json` and **regenerates `src/index.ts`** on every `init`/`add` based on that state. No manual wire-up step. Adding the same module twice is a no-op.
 
 ## File layout
 
@@ -49,6 +51,6 @@ See the "File layout of this skill" section in [`AGENTS.md`](./AGENTS.md).
 
 Three principles, in order:
 
-1. **Same shape for every module.** `modules.json` declares each module's files, deps, and devDeps. The reference doc explains the 2–5 lines of glue to wire it into `src/index.ts`. No module breaks the pattern.
+1. **Same shape for every module.** `modules.json` declares each module's files, deps, and devDeps. The scaffold script regenerates `src/index.ts` so module wire-up is automatic — no glue code to copy by hand.
 2. **No agent-specific lock-in.** `AGENTS.md` is canonical. `CLAUDE.md`, `GEMINI.md`, `.cursorrules`, `SKILL.md` are one-line shims pointing at it.
-3. **Templates are real files, not snippets.** You can copy them verbatim into a project and they will compile and run.
+3. **Templates are real files, not snippets.** You can copy them verbatim into a project and they will compile and run. For agents that can't run the script, [`references/wire-up.md`](./references/wire-up.md) documents the manual recipe.

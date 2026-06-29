@@ -4,6 +4,10 @@ const schema = z.object({
   NODE_ENV: z.enum(['development', 'test', 'production']).default('development'),
   PORT: z.coerce.number().int().positive().default(4000),
   LOG_LEVEL: z.enum(['fatal', 'error', 'warn', 'info', 'debug', 'trace']).default('info'),
+  SHUTDOWN_TIMEOUT_MS: z.coerce.number().int().positive().default(10_000),
+
+  // graphql (optional — comma-separated origin list, or unset for permissive dev / blocked prod)
+  CORS_ORIGIN: z.string().optional(),
 
   // auth-jwt (optional — only required if module is installed)
   JWT_SECRET: z.string().min(16).optional(),

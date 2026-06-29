@@ -50,14 +50,6 @@ The schema in `src/config/env.ts` also declares optional vars for other modules 
 
 ## How modules wire into the entry point
 
-`src/index.ts` has a comment block listing the one-liner each module adds:
+`scaffold.mjs` regenerates `src/index.ts` on every `init`/`add` based on the modules tracked in `.scaffold-state.json`. You should not hand-edit `src/index.ts` — your changes will be lost on the next `add`. If you need to customize the startup flow, edit `src/server/http.ts` (which generated `index.ts` calls into) instead.
 
-```ts
-// db-mongoose:    await connectMongo();
-// db-pg:          await pingPg();
-// rest:           registerRest(app);
-// graphql:        await registerApollo(app);
-// observability:  registerObservability(app);
-```
-
-When you install a module, replace the matching comment with the live line. The reference doc for each module shows the exact form.
+For the manual recipe (when not using the script), see [`../wire-up.md`](../wire-up.md).

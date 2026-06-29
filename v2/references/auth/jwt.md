@@ -24,7 +24,7 @@ For production: generate with `openssl rand -hex 32`. Never commit it.
 
 ## Wire it up
 
-There is no global wire-up. Apply the middleware on routers that need protection:
+No global wire-up — apply the middleware on routers that need protection. (When `graphql` is also installed, `scaffold.mjs` auto-wires JWT verification into the Apollo context; see [`../wire-up.md`](../wire-up.md).)
 
 ```ts
 import { requireAuth, requireRole } from '../middleware/auth.js';
@@ -50,19 +50,7 @@ router.post('/login', validate(loginSchema), async (req, res) => {
 });
 ```
 
-## Combining with GraphQL
-
-In `src/server/apollo.ts`, replace the placeholder `userId` extraction with:
-
-```ts
-import { verifyToken } from '../lib/jwt.js';
-// inside context:
-const raw = req.headers.authorization?.replace('Bearer ', '');
-const userId = raw ? verifyToken(raw).sub : undefined;
-return { userId };
-```
-
 ## Troubleshooting
 
-- **`JWT_SECRET is required` at boot**: the module's `lib/jwt.ts` throws at import time if the secret is missing. Set it in `.env`.
+- **`JWT_SECRET is required to sign or verify tokens`**: the secret is read lazily on the first sign/verify call. Set it in `.env` before issuing or validating tokens. The service itself starts fine without it (so unrelated routes still work).
 - **`jwt expired`**: client is sending a stale token. Either refresh on the client or extend `JWT_EXPIRES_IN`.

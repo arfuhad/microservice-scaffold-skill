@@ -1,11 +1,12 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "skill": "microservice-scaffold",
-  "version": "2.0.0",
+  "version": "2.1.0",
   "node": ">=20.0.0",
+  "notes": "Wire-up is automatic: scaffold.mjs regenerates src/index.ts on every init/add based on installed modules tracked in .scaffold-state.json.",
   "modules": {
     "core": {
-      "description": "Base TS/ESM project: package.json, tsconfig, env loader, Express bootstrap, /health, basic logger, AppError.",
+      "description": "Base TS/ESM project: package.json, tsconfig, env loader, Express bootstrap, /health, logger, AppError, shutdown coordinator, basic error handler.",
       "requires": [],
       "files": [
         { "src": "templates/package.json", "dest": "package.json" },
@@ -17,6 +18,8 @@
         { "src": "templates/src/server/http.ts", "dest": "src/server/http.ts" },
         { "src": "templates/src/lib/logger.ts", "dest": "src/lib/logger.ts" },
         { "src": "templates/src/lib/errors.ts", "dest": "src/lib/errors.ts" },
+        { "src": "templates/src/lib/shutdown.ts", "dest": "src/lib/shutdown.ts" },
+        { "src": "templates/src/middleware/error.basic.ts", "dest": "src/middleware/error.basic.ts" },
         { "src": "templates/src/routes/health.ts", "dest": "src/routes/health.ts" }
       ],
       "deps": {
@@ -42,11 +45,10 @@
       ],
       "deps": {},
       "devDeps": {},
-      "wireUp": "Add `import { registerRest } from './server/rest.js'` and call `registerRest(app)` in src/index.ts. See references/api/rest.md.",
       "postInstall": []
     },
     "graphql": {
-      "description": "Apollo Server v4 mounted on Express via expressMiddleware. Sample schema + resolver.",
+      "description": "Apollo Server v4 mounted on Express via expressMiddleware. CORS via env. Auto-integrates with auth-jwt if installed.",
       "requires": ["core"],
       "files": [
         { "src": "templates/src/server/apollo.ts", "dest": "src/server/apollo.ts" },
@@ -57,18 +59,15 @@
         "@apollo/server": "^4.11.0",
         "graphql": "^16.9.0",
         "graphql-tag": "^2.12.6",
-        "cors": "^2.8.5",
-        "body-parser": "^1.20.2"
+        "cors": "^2.8.5"
       },
       "devDeps": {
-        "@types/cors": "^2.8.17",
-        "@types/body-parser": "^1.19.5"
+        "@types/cors": "^2.8.17"
       },
-      "wireUp": "Add `await registerApollo(app, httpServer)` in src/index.ts after creating the http server. See references/api/graphql.md.",
       "postInstall": []
     },
     "db-mongoose": {
-      "description": "Mongoose 8 connection with graceful shutdown and event-based reconnect logging; sample model.",
+      "description": "Mongoose 8 connection (lazy at import, validated in connectMongo); sample model.",
       "requires": ["core"],
       "conflicts": ["db-pg", "db-prisma"],
       "files": [
@@ -78,11 +77,10 @@
       "deps": { "mongoose": "^8.5.1" },
       "devDeps": {},
       "envVars": ["MONGO_URI"],
-      "wireUp": "Add `await connectMongo()` early in src/index.ts. See references/db/mongoose.md.",
       "postInstall": []
     },
     "db-pg": {
-      "description": "pg.Pool with parametrized query helper, transaction helper, graceful shutdown.",
+      "description": "pg.Pool (lazy at import, validated in pingPg) with query + transaction helpers.",
       "requires": ["core"],
       "conflicts": ["db-mongoose", "db-prisma"],
       "files": [
@@ -91,7 +89,6 @@
       "deps": { "pg": "^8.12.0" },
       "devDeps": { "@types/pg": "^8.11.6" },
       "envVars": ["PG_HOST", "PG_PORT", "PG_USER", "PG_PASSWORD", "PG_DATABASE"],
-      "wireUp": "Add `await pingPg()` early in src/index.ts to fail-fast on bad config. See references/db/pg.md.",
       "postInstall": []
     },
     "db-prisma": {
@@ -105,11 +102,10 @@
       "deps": { "@prisma/client": "^5.18.0" },
       "devDeps": { "prisma": "^5.18.0" },
       "envVars": ["DATABASE_URL"],
-      "wireUp": "Import `prisma` from './db/prisma.js' where needed; nothing to wire into index.ts. See references/db/prisma.md.",
       "postInstall": ["npx prisma generate", "npx prisma migrate dev --name init"]
     },
     "auth-jwt": {
-      "description": "JWT sign/verify helpers, Express middleware for required + optional auth, role guard.",
+      "description": "JWT sign/verify helpers (lazy secret check), Express middleware for required + optional auth, role guard.",
       "requires": ["core"],
       "files": [
         { "src": "templates/src/lib/jwt.ts", "dest": "src/lib/jwt.ts" },
@@ -118,11 +114,10 @@
       "deps": { "jsonwebtoken": "^9.0.2" },
       "devDeps": { "@types/jsonwebtoken": "^9.0.6" },
       "envVars": ["JWT_SECRET", "JWT_EXPIRES_IN"],
-      "wireUp": "Apply `requireAuth` to protected routers. See references/auth/jwt.md.",
       "postInstall": []
     },
     "observability": {
-      "description": "Pino structured logger (overrides core logger), request-ID middleware, central error handler, /ready.",
+      "description": "Pino structured logger (overrides core logger), request-ID middleware, reqId-aware error handler (overrides core), /ready.",
       "requires": ["core"],
       "files": [
         { "src": "templates/src/lib/logger.pino.ts", "dest": "src/lib/logger.ts", "overwrite": true },
@@ -137,16 +132,14 @@
       "devDeps": {
         "pino-pretty": "^11.2.2"
       },
-      "wireUp": "Mount `requestId` and `pinoHttp(logger)` before routes; mount `errorHandler` last; mount `/ready`. See references/observability/logging.md.",
       "postInstall": []
     },
     "docker": {
-      "description": "Multi-stage Dockerfile (build+runtime) and docker-compose with selected DB. Uncomment the relevant DB service.",
+      "description": "Multi-stage Dockerfile + docker-compose. Compose file is generated to match the selected DB module.",
       "requires": ["core"],
       "files": [
         { "src": "templates/docker/Dockerfile", "dest": "Dockerfile" },
-        { "src": "templates/docker/.dockerignore", "dest": ".dockerignore" },
-        { "src": "templates/docker/docker-compose.yml", "dest": "docker-compose.yml" }
+        { "src": "templates/docker/.dockerignore", "dest": ".dockerignore" }
       ],
       "deps": {},
       "devDeps": {},

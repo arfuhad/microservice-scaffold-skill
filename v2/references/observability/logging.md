@@ -8,40 +8,23 @@ Replaces the core's basic logger with [pino](https://getpino.io), adds request-I
 node v2/scripts/scaffold.mjs add observability <target-dir>
 ```
 
-This **overwrites** `src/lib/logger.ts`. Other modules already import from `./lib/logger.js`, so the swap is seamless — no other file changes.
+This **overwrites** two files from core:
+
+- `src/lib/logger.ts` — swapped from the basic console logger to a pino-backed one
+- `src/middleware/error.basic.ts`'s role is taken over by `src/middleware/error.ts` (reqId-aware)
+
+Other modules already import `logger` from `./lib/logger.js` and `errorHandler` from `./middleware/error.js`, so the upgrade is seamless.
 
 ## Files added / replaced
 
 - `src/lib/logger.ts` — replaced with pino-backed implementation
 - `src/middleware/requestId.ts` — assigns `req.id` from `X-Request-Id` or generates one
-- `src/middleware/error.ts` — central error handler that understands `AppError`
+- `src/middleware/error.ts` — central error handler that understands `AppError` and logs `reqId`
 - `src/routes/ready.ts` — `/ready` with a check registry
 
 ## Wire it up
 
-In `src/server/http.ts`, register middleware in this order — **request ID before routes, error handler last**:
-
-```ts
-import pinoHttp from 'pino-http';
-import { logger } from '../lib/logger.js';
-import { requestId } from '../middleware/requestId.js';
-import { errorHandler } from '../middleware/error.js';
-import { readyRouter } from '../routes/ready.js';
-
-export function createApp(): Express {
-  const app = express();
-  app.use(requestId);
-  app.use(pinoHttp({ logger, customProps: (req) => ({ reqId: req.id }) }));
-  app.use(express.json({ limit: '1mb' }));
-  app.use('/health', healthRouter);
-  app.use('/ready', readyRouter);
-  // ... module routers go here ...
-  app.use(errorHandler);  // MUST be last
-  return app;
-}
-```
-
-For convenience, you can extract this into a `registerObservability(app)` helper if you prefer.
+Auto-wired by `scaffold.mjs`: the generated `src/index.ts` mounts `requestId` and `pinoHttp` before routes, mounts `/ready`, and uses the reqId-aware error handler. For the manual recipe, see [`../wire-up.md`](../wire-up.md).
 
 ## Adding readiness checks
 

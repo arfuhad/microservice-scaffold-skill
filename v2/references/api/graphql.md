@@ -18,15 +18,7 @@ node v2/scripts/scaffold.mjs add graphql <target-dir>
 
 ## Wire it up
 
-`registerApollo` is async — Apollo must `start()` before `expressMiddleware` is registered. In `src/index.ts`:
-
-```ts
-import { registerApollo } from './server/apollo.js';
-// ...
-await registerApollo(app);
-```
-
-(Replace the `// graphql: await registerApollo(app);` placeholder comment.)
+Auto-wired by `scaffold.mjs`. If `auth-jwt` is also installed, the script wires `extractAuth` to verify Bearer tokens automatically. For the manual recipe, see [`../wire-up.md`](../wire-up.md).
 
 ## Modular schemas
 
@@ -45,16 +37,29 @@ export const typeDefs = mergeTypeDefs(loadFilesSync('src/graphql/**/*.graphql'))
 
 ## Context & auth
 
-`registerApollo`'s `context` function receives the Express `req` and returns a `GraphQLContext`. Combine with the `auth-jwt` module:
+`registerApollo` accepts an `extractAuth(req) => GraphQLContext` callback. With `auth-jwt` installed, the scaffold passes a Bearer-token verifier automatically. If you call it by hand:
 
 ```ts
 import { verifyToken } from '../lib/jwt.js';
-// inside context:
-const auth = req.headers.authorization?.replace('Bearer ', '');
-return { userId: auth ? verifyToken(auth).sub : undefined };
+await registerApollo(app, {
+  extractAuth: (req) => {
+    const header = req.headers.authorization;
+    if (!header?.startsWith('Bearer ')) return {};
+    try {
+      const payload = verifyToken(header.slice(7));
+      return { userId: payload.sub, roles: payload.roles };
+    } catch {
+      return {};
+    }
+  },
+});
 ```
+
+## CORS
+
+`registerApollo` reads `env.CORS_ORIGIN` — a comma-separated list of allowed origins. Unset means permissive in dev / blocked in production.
 
 ## Troubleshooting
 
 - **`Apollo Server must be started before...`**: you forgot `await` on `registerApollo`.
-- **CORS errors from browser**: `registerApollo` mounts `cors()` on the GraphQL path. If you serve a non-default origin, configure `cors({ origin: ... })`.
+- **CORS errors from browser**: set `CORS_ORIGIN=https://your.app` in `.env`.

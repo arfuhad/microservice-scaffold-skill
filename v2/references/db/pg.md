@@ -26,15 +26,9 @@ Conflicts with `db-mongoose` and `db-prisma` — pick one.
 
 ## Wire it up
 
-In `src/index.ts`:
+Auto-wired by `scaffold.mjs` — it adds `await pingPg()` before the app is created and registers pool shutdown via the central coordinator. For the manual recipe, see [`../wire-up.md`](../wire-up.md).
 
-```ts
-import { pingPg } from './db/pg.js';
-// ...
-await pingPg();
-```
-
-`pingPg` runs a `SELECT 1` to fail-fast if config is wrong. Without it, the service starts and the first request explodes.
+`pingPg` runs a `SELECT 1` to fail-fast if config is wrong. The pool itself is lazy — creating `getPool()` only happens on first use, so missing `PG_*` env vars don't crash unrelated startup paths.
 
 ## Querying
 

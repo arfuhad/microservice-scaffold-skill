@@ -1,5 +1,6 @@
 import { PrismaClient } from '@prisma/client';
 import { logger } from '../lib/logger.js';
+import { onShutdown } from '../lib/shutdown.js';
 
 export const prisma = new PrismaClient({
   log: [
@@ -8,14 +9,14 @@ export const prisma = new PrismaClient({
   ],
 });
 
-// @ts-expect-error pino-style typed events on PrismaClient
-prisma.$on('error', (e) => logger.error({ err: e }, 'prisma error'));
-// @ts-expect-error
-prisma.$on('warn', (e) => logger.warn({ e }, 'prisma warn'));
+(prisma.$on as (e: string, cb: (e: unknown) => void) => void)('error', (e) =>
+  logger.error({ err: e }, 'prisma error')
+);
+(prisma.$on as (e: string, cb: (e: unknown) => void) => void)('warn', (e) =>
+  logger.warn({ e }, 'prisma warn')
+);
 
-const close = async () => {
+onShutdown('prisma', async () => {
   await prisma.$disconnect();
   logger.info('prisma disconnected');
-};
-process.on('SIGINT', close);
-process.on('SIGTERM', close);
+});
