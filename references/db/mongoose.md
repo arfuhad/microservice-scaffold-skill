@@ -43,7 +43,7 @@ const userSchema = new Schema(
   { timestamps: true }
 );
 
-export type User = InferSchemaType<typeof userSchema> & { _id: string };
+export type User = Omit<InferSchemaType<typeof userSchema>, '_id'> & { _id: string };
 export const UserModel = model('User', userSchema);
 ```
 

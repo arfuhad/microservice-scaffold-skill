@@ -28,7 +28,7 @@ Everything is a **module**. Pick what you need; skip the rest. Modules don't dep
 node scripts/scaffold.mjs init <target-dir> \
   --api=rest,graphql \
   --db=pg \
-  --modules=auth,observability,docker,tests
+  --modules=auth-jwt,observability,docker,tests
 
 # Add a single module to an existing project
 node scripts/scaffold.mjs add <module> <target-dir>
@@ -139,7 +139,7 @@ microservice-scaffold/
 │   ├── db/{mongoose,pg,prisma}.md
 │   ├── auth/jwt.md
 │   ├── config/env.md
-│   ├── observability/{logging,errors,health}.md
+│   ├── observability/logging.md
 │   ├── docker/README.md
 │   └── testing/vitest.md
 ├── templates/             ← real, working files to copy into the target project
@@ -149,7 +149,7 @@ microservice-scaffold/
 │   ├── .gitignore
 │   ├── src/...
 │   ├── tests/...
-│   ├── docker/{Dockerfile,docker-compose.yml}
+│   ├── docker/{Dockerfile,.dockerignore}
 │   └── prisma/schema.prisma
 └── scripts/
     └── scaffold.mjs       ← reads modules.json, copies templates, merges deps

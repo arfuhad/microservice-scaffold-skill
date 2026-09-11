@@ -7,5 +7,5 @@ const exampleSchema = new Schema(
   { timestamps: true }
 );
 
-export type Example = InferSchemaType<typeof exampleSchema> & { _id: string };
+export type Example = Omit<InferSchemaType<typeof exampleSchema>, '_id'> & { _id: string };
 export const ExampleModel = model('Example', exampleSchema);

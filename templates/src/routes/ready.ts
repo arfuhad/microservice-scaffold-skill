@@ -3,7 +3,7 @@ import { Router } from 'express';
 export const readyRouter = Router();
 
 // Register checks here. Each check returns true (ready) or throws.
-const checks: Array<{ name: string; fn: () => Promise<unknown> }> = [
+export const checks: Array<{ name: string; fn: () => Promise<unknown> }> = [
   // Example: { name: 'pg', fn: () => pingPg() },
 ];
 

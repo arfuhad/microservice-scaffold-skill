@@ -8,15 +8,25 @@ Multi-stage `Dockerfile` for production and a `docker-compose.yml` for local dev
 node scripts/scaffold.mjs add docker <target-dir>
 ```
 
-## Files added
+## Files added / generated
 
 - `Dockerfile` — three stages: `deps`, `build`, `runtime`. Runtime is `node:20-alpine` with prod-only `node_modules`.
 - `.dockerignore`
-- `docker-compose.yml` — `app` service plus commented-out `postgres` and `mongo` services.
+- `docker-compose.yml` — **generated automatically** by `scaffold.mjs` to match the installed database module (`db-pg` / `db-prisma` configure PostgreSQL, `db-mongoose` configures MongoDB).
 
 ## Local development
 
-Pick the DB matching your installed module and uncomment its block in `docker-compose.yml` (plus the `depends_on` and the volume).
+If using `scaffold.mjs`, `docker-compose.yml` is pre-configured for your database. If setting up manually without the script, create `docker-compose.yml` with your app and database service:
+
+```yaml
+services:
+  app:
+    build: .
+    ports:
+      - "4000:4000"
+    env_file: .env
+    # depends_on: [postgres] or [mongo]
+```
 
 ```bash
 docker compose up --build
